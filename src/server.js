@@ -15,4 +15,4 @@ connectDB()
         console.log("MongoDB connection failed", err);
     });
 
-export { app };
+export default app;
