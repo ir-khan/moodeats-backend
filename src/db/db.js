@@ -3,7 +3,7 @@ import mongoose from "mongoose";
 const connectDB = async () => {
     try {
         const conn = await mongoose.connect(
-            `${process.env.MONGODB_URI}/moodeats`,
+            `${process.env.MONGODB_URI}`,
             {
                 serverSelectionTimeoutMS: 50000,
                 connectTimeoutMS: 50000,
