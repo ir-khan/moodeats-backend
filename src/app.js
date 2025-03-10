@@ -14,6 +14,12 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static("public"));
 
+app.get("/", (req, res) => {
+    res.send(
+        "   Welcome, \n      We are here to help you with your queries. \n                      From \n                      MOODEATS"
+    );
+});
+
 // routes import
 import authRoutes from "./routes/auth.route.js";
 
