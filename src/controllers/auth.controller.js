@@ -8,6 +8,12 @@ import {
 import { ApiResponse } from "../utils/ApiResponse.js";
 import jwt from "jsonwebtoken";
 
+const sendResponse = (res, statusCode, message, data = {}) => {
+    return res
+        .status(statusCode)
+        .json(new ApiResponse(statusCode, message, data));
+};
+
 const generateAccessAndRefreshToken = async (UserId) => {
     try {
         const user = await User.findById(UserId);
@@ -27,17 +33,6 @@ const generateAccessAndRefreshToken = async (UserId) => {
 };
 
 const registerUser = asyncHandler(async (req, res) => {
-    
-    // get user details from frontend
-    // validation - not empty
-    // check if user already exists: email
-    // check for profile picture
-    // upload them to server or cloudinary
-    // create user object - create entry in db
-    // remove password and refresh token field from reponse
-    // check for user creation
-    // return response
-
     const { name, email, password, phone, role } = req.body;
 
     if (
@@ -77,21 +72,13 @@ const registerUser = asyncHandler(async (req, res) => {
     );
 
     if (!createdUser) {
-        throw new ApiError(500, "Something went wrong while registering user");
+        throw new ApiError(500, "Error registering user");
     }
 
-    return res
-        .status(201)
-        .json(new ApiResponse(200, "User created successfully", createdUser));
+    sendResponse(res, 201, "User created successfully", { user: createdUser });
 });
 
 const loginUser = asyncHandler(async (req, res) => {
-    // get user details from req: email, password
-    // check data is not empty
-    // find the user
-    // if user exist check password
-    // generate access and refresh token
-
     const { email, password } = req.body;
 
     if ([email, password].some((field) => !field || field.trim() === "")) {
@@ -118,13 +105,11 @@ const loginUser = asyncHandler(async (req, res) => {
         "-password -refreshToken"
     );
 
-    return res.status(200).json(
-        new ApiResponse(200, "User logged in successfully", {
-            user: loggedInUser,
-            accessToken,
-            refreshToken,
-        })
-    );
+    sendResponse(res, 200, "User logged in successfully", {
+        user: loggedInUser,
+        accessToken,
+        refreshToken,
+    });
 });
 
 const logoutUser = asyncHandler(async (req, res) => {
@@ -138,9 +123,7 @@ const logoutUser = asyncHandler(async (req, res) => {
         }
     );
 
-    return res
-        .status(200)
-        .json(new ApiResponse(200, "User logged out successfully", {}));
+    sendResponse(res, 200, "User logged out successfully");
 });
 
 const refreshAccessToken = asyncHandler(async (req, res) => {
@@ -158,23 +141,12 @@ const refreshAccessToken = asyncHandler(async (req, res) => {
 
         const user = await User.findById(decodedToken?._id);
 
-        if (!user) {
-            throw new ApiError(401, "Invalid Refresh Token");
+        if (!user || incomingRefreshToken !== user.refreshToken) {
+            throw new ApiError(401, "Invalid or expired refresh token");
         }
 
-        if (incomingRefreshToken !== user?.refreshToken) {
-            throw new ApiError(401, "Refresh Token is expired or used");
-        }
-
-        const { accessToken, refreshToken } =
-            await generateAccessAndRefreshToken(user._id);
-
-        return res.status(200).json(
-            new ApiError(200, "Access Token refreshed successfully", {
-                accessToken,
-                refreshToken,
-            })
-        );
+        const tokens = await generateAccessAndRefreshToken(user._id);
+        sendResponse(res, 200, "Access token refreshed successfully", tokens);
     } catch (error) {
         throw new ApiError(401, error?.message || "Invalid Refresh Token");
     }
@@ -193,15 +165,13 @@ const changeCurrentPassword = asyncHandler(async (req, res) => {
     user.password = newPassword;
     await user.save({ validateBeforeSave: false });
 
-    return res
-        .status(200)
-        .json(new ApiResponse(200, "Password changed successfully", {}));
+    sendResponse(res, 200, "Password changed successfully");
 });
 
 const getCurrentUser = asyncHandler(async (req, res) => {
-    return res
-        .status(200)
-        .json(new ApiResponse(200, "User data fetched successfully", req.user));
+    sendResponse(res, 200, "User data fetched successfully", {
+        user: req.user,
+    });
 });
 
 const updateAccountDetails = asyncHandler(async (req, res) => {
@@ -223,11 +193,7 @@ const updateAccountDetails = asyncHandler(async (req, res) => {
         }
     ).select("-password -refreshToken");
 
-    return res
-        .status(200)
-        .json(
-            new ApiResponse(200, "Account details updated successfully", user)
-        );
+    sendResponse(res, 200, "Account details updated successfully", { user });
 });
 
 const updateUserAvatar = asyncHandler(async (req, res) => {
@@ -253,11 +219,7 @@ const updateUserAvatar = asyncHandler(async (req, res) => {
     await user.save({ validateBeforeSave: false });
     await deleteFromCloudinary(oldAvatar);
 
-    return res
-        .status(200)
-        .json(
-            new ApiResponse(200, "Profile picture updated successfully", user)
-        );
+    sendResponse(res, 200, "Profile picture updated successfully", { user });
 });
 
 export {
