@@ -31,6 +31,10 @@ const userSchema = new Schema(
             type: String,
             required: true,
         },
+        isPhoneVerified: {
+            type: Boolean,
+            default: false,
+        },
         avatar: {
             type: String,
             default:

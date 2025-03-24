@@ -22,9 +22,11 @@ app.get("/", (req, res) => {
 
 // routes import
 import authRoutes from "./routes/auth.route.js";
+import optRoutes from "./routes/otp.route.js";
 
 // routes declaration
 app.use("/api/v1/auth", authRoutes);
+app.use("/api/v1/otp", optRoutes);
 
 // http://localhost:port/api/v1/auth/register
 
