@@ -1,6 +1,7 @@
 import { asyncHandler } from "../utils/asyncHandler.js";
 import { ApiError } from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
+import { sendOtpViaSMS } from "../utils/smsService.js";
 import { User } from "../models/user.model.js";
 import { OTP } from "../models/otp.model.js";
 
@@ -14,8 +15,7 @@ const requestOTP = asyncHandler(async (req, res) => {
     const otpInstance = OTP.generateOTP(phone);
     await otpInstance.save();
 
-    // TODO: Send OTP via SMS or Email (implement SMS sending logic)
-    console.log(`OTP sent to ${phone}: ${otpInstance.otp}`);
+    // await sendOtpViaSMS(phone, otpInstance.otp);
 
     res.status(200).json(new ApiResponse(200, "OTP sent successfully"));
 });
