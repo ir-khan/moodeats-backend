@@ -55,7 +55,9 @@ const updateAvatar = asyncHandler(async (req, res) => {
         throw new ApiError(500, "Failed to upload profile picture");
     }
 
-    const user = await User.findById(req.user?._id);
+    const user = await User.findById(req.user?._id).select(
+        "-password -refreshToken"
+    );
     if (!user) {
         throw new ApiError(404, "User not found");
     }
