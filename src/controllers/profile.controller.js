@@ -33,11 +33,21 @@ const updateProfile = asyncHandler(async (req, res) => {
         throw new ApiError(404, "User not found");
     }
 
-    if (user.name !== name || user.phone !== phone) {
-        user.name = name;
-        user.phone = phone;
-        await user.save();
+    const existingUser = await User.findOne({ phone });
+    if (existingUser && existingUser._id.toString() !== user._id.toString()) {
+        throw new ApiError(409, "Phone number already in use");
     }
+
+    const isPhoneChanged = user.phone !== phone;
+
+    user.name = name;
+    user.phone = phone;
+
+    if (isPhoneChanged) {
+        user.isPhoneVerified = false;
+    }
+
+    await user.save();
 
     sendResponse(res, 200, "Account details updated successfully", { user });
 });
