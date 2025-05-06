@@ -24,11 +24,17 @@ app.get("/", (req, res) => {
 import authRoutes from "./routes/auth.route.js";
 import optRoutes from "./routes/otp.route.js";
 import profileRoutes from "./routes/profile.route.js";
+import moodRoutes from "./routes/mood.route.js";
+import adminRoutes from "./routes/admin.route.js";
 
 // routes declaration
 app.use("/api/v1/auth", authRoutes);
 app.use("/api/v1/otp", optRoutes);
 app.use("/api/v1/profile", profileRoutes);
+app.use("/api/v1/mood", moodRoutes);
+
+// admin routes
+app.use("/api/v1/admin", adminRoutes);
 
 // http://localhost:port/api/v1/auth/register
 

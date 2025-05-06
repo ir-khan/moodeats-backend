@@ -5,13 +5,45 @@ import {
     updateAvatar,
 } from "../controllers/profile.controller.js";
 import upload from "../middlewares/multer.middleware.js";
-import verifyJWT from "../middlewares/auth.middleware.js";
+import { verifyToken, verifyUserRoles } from "../middlewares/auth.middleware.js";
+import { USER_ROLES } from "../constants/roles.js";
 
 const router = Router();
 
 // Secured Routes
-router.route("/").get(verifyJWT, getProfile);
-router.route("/").put(verifyJWT, updateProfile);
-router.route("/avatar").patch(verifyJWT, upload.single("avatar"), updateAvatar);
+router
+    .route("/")
+    .get(
+        verifyToken,
+        verifyUserRoles(
+            USER_ROLES.CLIENT,
+            USER_ROLES.DRIVER,
+            USER_ROLES.VENDOR
+        ),
+        getProfile
+    );
+router
+    .route("/")
+    .put(
+        verifyToken,
+        verifyUserRoles(
+            USER_ROLES.CLIENT,
+            USER_ROLES.DRIVER,
+            USER_ROLES.VENDOR
+        ),
+        updateProfile
+    );
+router
+    .route("/avatar")
+    .patch(
+        verifyToken,
+        verifyUserRoles(
+            USER_ROLES.CLIENT,
+            USER_ROLES.DRIVER,
+            USER_ROLES.VENDOR
+        ),
+        upload.single("avatar"),
+        updateAvatar
+    );
 
 export default router;

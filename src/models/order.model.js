@@ -1,15 +1,5 @@
 import mongoose, { Schema } from "mongoose";
-
-const ORDER_STATUS = {
-    PENDING: "PENDING", // Order placed, awaiting confirmation
-    CONFIRMED: "CONFIRMED", // Order confirmed by restaurant
-    PREPARING: "PREPARING", // Restaurant is preparing the order
-    READY: "READY", // Order is ready for pickup/delivery
-    OUT_FOR_DELIVERY: "OUT_FOR_DELIVERY", // Order is on its way to the customer
-    DELIVERED: "DELIVERED", // Order delivered to the customer
-    CANCELLED: "CANCELLED", // Order cancelled
-    FAILED: "FAILED", // Order failed (e.g., payment or system error)
-};
+import { ORDER_STATUS, PAYMENT_STATUS, PAYMENT_METHOD } from "../constants/status.js";
 
 const orderItemSchema = new Schema({
     foodId: {
@@ -21,12 +11,17 @@ const orderItemSchema = new Schema({
         type: Number,
         required: true,
     },
+    unitPrice: {
+        type: Number,
+        required: true,
+    },
 });
 
 const orderSchema = new Schema(
     {
-        orderPrice: {
-            type: Number,
+        restaurant: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "Restaurant",
             required: true,
         },
         customer: {
@@ -34,16 +29,48 @@ const orderSchema = new Schema(
             ref: "User",
             required: true,
         },
+        deliveryAddress: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "Address",
+            required: true,
+        },
         orderItems: [orderItemSchema],
+        orderPrice: {
+            type: Number,
+            required: true,
+        },
         orderStatus: {
             type: String,
             enum: Object.values(ORDER_STATUS),
             default: ORDER_STATUS.PENDING,
+        },
+        paymentStatus: {
+            type: String,
+            enum: Object.values(PAYMENT_STATUS),
+            default: PAYMENT_STATUS.PENDING,
+        },
+        paymentMethod: {
+            type: String,
+            enum: Object.values(PAYMENT_METHOD),
+            required: true,
+        },
+        transactionId: {
+            type: String,
+        },
+        notes: {
+            type: String,
+            default: "",
+        },
+        statusTimestamps: {
+            placedAt: { type: Date, default: Date.now },
+            acceptedAt: Date,
+            dispatchedAt: Date,
+            deliveredAt: Date,
+            cancelledAt: Date,
         },
     },
     { timestamps: true }
 );
 
 const Order = mongoose.model("Order", orderSchema);
-
-export { Order, ORDER_STATUS };
+export { Order };

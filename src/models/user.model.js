@@ -1,21 +1,11 @@
 import mongoose, { Schema } from "mongoose";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcryptjs";
-
-const ROLE = {
-    ADMIN: "ADMIN",
-    CUSTOMER: "CUSTOMER",
-    RESTAURANTOWNER: "RESTAURANTOWNER",
-    DRIVER: "DRIVER",
-};
+import { USER_ROLES } from "../constants/roles.js";
 
 const userSchema = new Schema(
     {
-        name: {
-            type: String,
-            required: true,
-            trim: true,
-        },
+        name: { type: String, required: true, trim: true },
         email: {
             type: String,
             required: true,
@@ -23,32 +13,23 @@ const userSchema = new Schema(
             lowercase: true,
             trim: true,
         },
-        password: {
-            type: String,
-            required: true,
-        },
-        phone: {
-            type: String,
-            required: true,
-        },
-        isPhoneVerified: {
-            type: Boolean,
-            default: false,
-        },
+        password: { type: String, required: true },
+        phone: { type: String, required: true },
+        isPhoneVerified: { type: Boolean, default: false },
         avatar: {
             type: String,
             default:
                 "https://res.cloudinary.com/izn-cloudinary/image/upload/v1741510874/s2ivd2jgkd5jzx0gvtkd.png",
         },
+        addresses: [{ type: mongoose.Schema.Types.ObjectId, ref: "Address" }],
         role: {
             type: String,
             required: true,
-            enum: Object.values(ROLE),
-            default: ROLE.CUSTOMER,
+            enum: Object.values(USER_ROLES),
+            default: USER_ROLES.CUSTOMER,
         },
-        refreshToken: {
-            type: String,
-        },
+        refreshToken: { type: String },
+        isActive: { type: Boolean, default: true },
     },
     { timestamps: true }
 );
@@ -82,4 +63,4 @@ userSchema.methods.generateRefreshToken = function () {
 };
 
 const User = mongoose.model("User", userSchema);
-export {User};
+export { User };

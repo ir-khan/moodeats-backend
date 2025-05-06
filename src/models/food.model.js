@@ -24,10 +24,19 @@ const foodSchema = new Schema(
             ref: "Category",
             required: true,
         },
+        cuisine: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "Cuisine",
+            required: true,
+        },
         restaurant: {
             type: mongoose.Schema.Types.ObjectId,
             ref: "Restaurant",
             required: true,
+        },
+        menu: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "Menu",
         },
         rating: {
             type: Number,

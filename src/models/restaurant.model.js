@@ -1,44 +1,40 @@
 import mongoose, { Schema } from "mongoose";
-
-const RESTAURANT_STATUS = {
-    ACTIVE: "ACTIVE", // Restaurant is open and operating normally.
-    INACTIVE: "INACTIVE", // Restaurant is offline or not accepting orders.
-    TEMPORARILY_CLOSED: "TEMPORARILY_CLOSED", // Temporarily closed due to special circumstances.
-    UNDER_MAINTENANCE: "UNDER_MAINTENANCE", // Undergoing maintenance or updates.
-    SUSPENDED: "SUSPENDED", // Suspended due to policy or regulatory issues.
-};
+import { RESTAURANT_STATUS } from "../constants/status.js";
 
 const restaurantSchema = new Schema(
     {
-        name: {
-            type: String,
+        name: { type: String, required: true, trim: true },
+        owner: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "User",
             required: true,
+            index: true,
         },
-        address: {
-            // You could further break down the address into street, city, etc.
-            type: Object,
-        },
-        phone: {
-            type: String,
+        addresses: [
+            {
+                type: mongoose.Schema.Types.ObjectId,
+                ref: "Address",
+            },
+        ],
+        phone: { type: String, required: true, trim: true },
+        cuisine: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "Cuisine",
             required: true,
-        },
-        email: {
-            type: String,
-            required: true,
-        },
-        password: {
-            type: String,
-            required: true,
+            index: true,
         },
         menu: [
             {
                 type: mongoose.Schema.Types.ObjectId,
                 ref: "Menu",
+                default: [],
             },
         ],
         rating: {
             type: Number,
-            required: true,
+            default: 0,
+            min: 0,
+            max: 5,
         },
         reviews: [
             {
@@ -52,15 +48,26 @@ const restaurantSchema = new Schema(
                 ref: "Order",
             },
         ],
+        logo: {
+            type: String,
+            default: "",
+        },
+        images: [
+            {
+                type: String,
+            },
+        ],
         status: {
             type: String,
             enum: Object.values(RESTAURANT_STATUS),
-            default: RESTAURANT_STATUS.ACTIVE,
-            required: true,
+            default: RESTAURANT_STATUS.PENDING,
+            index: true,
         },
     },
     { timestamps: true }
 );
 
+restaurantSchema.index({ name: "text" });
+
 const Restaurant = mongoose.model("Restaurant", restaurantSchema);
-export { Restaurant, RESTAURANT_STATUS };
+export { Restaurant };

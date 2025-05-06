@@ -1,6 +1,6 @@
 import mongoose, { Schema } from "mongoose";
 
-const categorySchema = new Schema(
+const cuisineSchema = new Schema(
     {
         name: {
             type: String,
@@ -23,5 +23,5 @@ const categorySchema = new Schema(
     { timestamps: true }
 );
 
-const Category = mongoose.model("Category", categorySchema);
-export default Category;
+const Cuisine = mongoose.model("Cuisine", cuisineSchema);
+export default Cuisine;
