@@ -30,6 +30,7 @@ const userSchema = new Schema(
         },
         refreshToken: { type: String },
         isActive: { type: Boolean, default: true },
+        restaurant: { type: mongoose.Schema.Types.ObjectId, ref: "Restaurant" },
     },
     { timestamps: true }
 );

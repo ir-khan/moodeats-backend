@@ -1,7 +1,7 @@
 import { asyncHandler } from "../utils/asyncHandler.js";
 import { ApiError } from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
-import { getAIResponse } from "../utils/aiClient.js";
+import { getAIResponse } from "../utils/AiClient.js";
 
 const sendResponse = (res, statusCode, message, data = {}) => {
     return res

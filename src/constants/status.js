@@ -31,3 +31,11 @@ export const PAYMENT_METHOD = {
     UPI: "UPI",
     WALLET: "WALLET",
 };
+
+export const ADDRESS_LABELS = {
+    HOME: "HOME",
+    WORK: "WORK",
+    OTHER: "OTHER",
+    RESTAURANT: "RESTAURANT",
+    WAREHOUSE: "WAREHOUSE",
+};

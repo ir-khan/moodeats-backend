@@ -23,13 +23,6 @@ const restaurantSchema = new Schema(
             required: true,
             index: true,
         },
-        menu: [
-            {
-                type: mongoose.Schema.Types.ObjectId,
-                ref: "Menu",
-                default: [],
-            },
-        ],
         rating: {
             type: Number,
             default: 0,
@@ -57,6 +50,10 @@ const restaurantSchema = new Schema(
                 type: String,
             },
         ],
+        isOpen: {
+            type: Boolean,
+            default: true,
+        },
         status: {
             type: String,
             enum: Object.values(RESTAURANT_STATUS),

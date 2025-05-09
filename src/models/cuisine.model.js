@@ -24,4 +24,4 @@ const cuisineSchema = new Schema(
 );
 
 const Cuisine = mongoose.model("Cuisine", cuisineSchema);
-export default Cuisine;
+export { Cuisine };

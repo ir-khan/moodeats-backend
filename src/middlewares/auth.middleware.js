@@ -56,4 +56,21 @@ const verifyAdminRoles = (...allowedAdminRoles) =>
         next();
     });
 
-export { verifyToken, verifyUserRoles, verifyAdminRoles };
+const verifyOwner = asyncHandler(async (req, res, next) => {
+    const { restaurantId } = req.params;
+
+    if (!req.user || req.user.role !== "OWNER") {
+        throw new ApiError(403, "Only restaurant owners can access this");
+    }
+
+    if (req.user.restaurant.toString() !== restaurantId) {
+        throw new ApiError(
+            403,
+            "You do not have permission to access this restaurant"
+        );
+    }
+
+    next();
+});
+
+export { verifyToken, verifyUserRoles, verifyAdminRoles, verifyOwner };

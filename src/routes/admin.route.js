@@ -47,13 +47,13 @@ router
 router
     .route("/login")
     .post(
-        verifyToken,
-        verifyAdminRoles(
-            ADMIN_ROLES.SUPER_ADMIN,
-            ADMIN_ROLES.ADMIN,
-            ADMIN_ROLES.MODERATOR,
-            ADMIN_ROLES.SUPPORT
-        ),
+        // verifyToken,
+        // verifyAdminRoles(
+        //     ADMIN_ROLES.SUPER_ADMIN,
+        //     ADMIN_ROLES.ADMIN,
+        //     ADMIN_ROLES.MODERATOR,
+        //     ADMIN_ROLES.SUPPORT
+        // ),
         loginAdmin
     );
 

@@ -29,5 +29,4 @@ const getAIResponse = async (prompt) => {
     }
 };
 
-
 export { getAIResponse };

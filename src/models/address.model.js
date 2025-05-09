@@ -1,12 +1,5 @@
 import mongoose, { Schema } from "mongoose";
-
-const ADDRESS_LABELS = {
-    HOME: "HOME",
-    WORK: "WORK",
-    OTHER: "OTHER",
-    RESTAURANT: "RESTAURANT",
-    WAREHOUSE: "WAREHOUSE",
-};
+import { ADDRESS_LABELS } from "../constants/status.js";
 
 const addressSchema = new Schema(
     {
@@ -44,4 +37,4 @@ addressSchema.index({ location: "2dsphere" });
 
 const Address = mongoose.model("Address", addressSchema);
 
-export { Address, ADDRESS_LABELS };
+export { Address };

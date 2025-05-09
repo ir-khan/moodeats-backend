@@ -7,6 +7,6 @@ export const ADMIN_ROLES = {
 
 export const USER_ROLES = {
     CLIENT: "CLIENT",
-    VENDOR: "VENDOR",
+    OWNER: "OWNER",
     DRIVER: "DRIVER",
 };

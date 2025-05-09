@@ -89,7 +89,7 @@ const loginAdmin = asyncHandler(async (req, res) => {
         await generateAdminAccessAndRefreshToken(admin._id);
 
     const loggedInAdmin = await Admin.findById(admin._id).select(
-        "-password -refreshToken"
+        "-password -refreshToken -__v"
     );
 
     sendResponse(res, 200, "Admin logged in successfully", {

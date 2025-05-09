@@ -10,7 +10,7 @@ const foodSchema = new Schema(
             type: String,
             required: true,
         },
-        foodPictures: [
+        images: [
             {
                 type: String,
             },
@@ -19,6 +19,28 @@ const foodSchema = new Schema(
             type: Number,
             default: 0,
         },
+        discount: {
+            type: Number,
+            default: 0,
+            min: 0,
+            max: 100,
+        },
+        isAvailable: {
+            type: Boolean,
+            default: true,
+        },
+        tags: [
+            {
+                type: String,
+                trim: true,
+            },
+        ],
+        moodTags: [
+            {
+                type: String,
+                trim: true,
+            },
+        ],
         category: {
             type: mongoose.Schema.Types.ObjectId,
             ref: "Category",
@@ -34,10 +56,6 @@ const foodSchema = new Schema(
             ref: "Restaurant",
             required: true,
         },
-        menu: {
-            type: mongoose.Schema.Types.ObjectId,
-            ref: "Menu",
-        },
         rating: {
             type: Number,
             default: 0,
@@ -52,4 +70,11 @@ const foodSchema = new Schema(
     { timestamps: true }
 );
 
+// Indexing for performance
+foodSchema.index({ restaurant: 1 });
+foodSchema.index({ category: 1 });
+foodSchema.index({ isAvailable: 1 });
+foodSchema.index({ moodTags: 1 });
+
 const Food = mongoose.model("Food", foodSchema);
+export { Food };
