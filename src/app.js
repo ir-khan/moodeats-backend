@@ -29,6 +29,7 @@ import categoryRoutes from "./routes/category.route.js";
 import cuisineRoutes from "./routes/cuisine.route.js";
 import adminRoutes from "./routes/admin.route.js";
 import ownerRoutes from "./routes/owner.route.js";
+import { errorHandler } from "./middlewares/error.middleware.js";
 
 // routes declaration
 app.use("/api/v1/auth", authRoutes);
@@ -44,5 +45,7 @@ app.use("/api/v1/admin", adminRoutes);
 app.use("/api/v1/owner", ownerRoutes);
 
 // http://localhost:port/api/v1/auth/register
+
+app.use(errorHandler);
 
 export { app };
