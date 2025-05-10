@@ -63,13 +63,20 @@ const verifyOwner = asyncHandler(async (req, res, next) => {
         throw new ApiError(403, "Only restaurant owners can access this");
     }
 
-    if (req.user.restaurant.toString() !== restaurantId) {
+    const restaurant = await Restaurant.findById(restaurantId);
+
+    if (!restaurant) {
+        throw new ApiError(404, "Restaurant not found");
+    }
+
+    if (restaurant.owner.toString() !== req.user._id.toString()) {
         throw new ApiError(
             403,
             "You do not have permission to access this restaurant"
         );
     }
 
+    req.restaurant = restaurant;
     next();
 });
 

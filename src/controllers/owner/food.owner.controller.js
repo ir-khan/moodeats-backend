@@ -23,8 +23,7 @@ const createFoodItem = asyncHandler(async (req, res) => {
         throw new ApiError(400, "Required fields are missing");
     }
 
-    const restaurant = req.user.restaurant;
-    if (!restaurant) throw new ApiError(403, "Unauthorized access");
+    const restaurant = req.restaurant;
 
     const images = req.files?.images
         ? await Promise.all(
@@ -70,7 +69,7 @@ Example output: ["comforting", "indulgent", "nostalgic"]
         moodTags,
         category,
         cuisine,
-        restaurant,
+        restaurant: restaurant._id,
     });
 
     res.status(201).json(
@@ -82,9 +81,12 @@ Example output: ["comforting", "indulgent", "nostalgic"]
 
 const updateFoodItem = asyncHandler(async (req, res) => {
     const foodId = req.params.id;
-    const restaurant = req.user.restaurant;
+    const restaurant = req.restaurant;
 
-    const food = await Food.findOne({ _id: foodId, restaurant });
+    const food = await Food.findOne({
+        _id: foodId,
+        restaurant: restaurant._id,
+    });
     if (!food) throw new ApiError(404, "Food item not found");
 
     const {
@@ -153,9 +155,12 @@ Example output: ["comforting", "indulgent", "nostalgic"]
 
 const deleteFoodItem = asyncHandler(async (req, res) => {
     const foodId = req.params.id;
-    const restaurant = req.user.restaurant;
+    const restaurant = req.restaurant;
 
-    const food = await Food.findOne({ _id: foodId, restaurant });
+    const food = await Food.findOne({
+        _id: foodId,
+        restaurant: restaurant._id,
+    });
     if (!food) throw new ApiError(404, "Food item not found");
 
     if (food.images?.length) {
@@ -169,51 +174,4 @@ const deleteFoodItem = asyncHandler(async (req, res) => {
     );
 });
 
-const getAllRestaurantFoods = asyncHandler(async (req, res) => {
-    const restaurant = req.user.restaurant;
-    const {
-        page = 1,
-        limit = 10,
-        sortBy = "createdAt",
-        sortOrder = "desc",
-        search = "",
-        category,
-        moodTag,
-    } = req.query;
-
-    const query = { restaurant };
-
-    if (category) query.category = category;
-    if (moodTag) query.moodTags = moodTag;
-
-    if (search) {
-        query.$or = [
-            { name: { $regex: search, $options: "i" } },
-            { description: { $regex: search, $options: "i" } },
-        ];
-    }
-
-    const total = await Food.countDocuments(query);
-
-    const foods = await Food.find(query)
-        .populate("category cuisine")
-        .sort({ [sortBy]: sortOrder === "asc" ? 1 : -1 })
-        .skip((page - 1) * limit)
-        .limit(parseInt(limit));
-
-    res.status(200).json(
-        new ApiResponse(200, "Food items fetched", {
-            total,
-            page: parseInt(page),
-            limit: parseInt(limit),
-            foods,
-        })
-    );
-});
-
-export {
-    createFoodItem,
-    updateFoodItem,
-    deleteFoodItem,
-    getAllRestaurantFoods,
-};
+export { createFoodItem, updateFoodItem, deleteFoodItem };
