@@ -28,7 +28,7 @@ router.route("/").post(
 );
 
 // Update a cuisine (only super admin can update)
-router.route("/:id").put(
+router.route("/:id").patch(
     verifyToken,
     verifyAdminRoles(ADMIN_ROLES.SUPER_ADMIN),
     upload.single("image"),

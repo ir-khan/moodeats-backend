@@ -24,7 +24,7 @@ router
     );
 router
     .route("/")
-    .put(
+    .patch(
         verifyToken,
         verifyUserRoles(
             USER_ROLES.CLIENT,

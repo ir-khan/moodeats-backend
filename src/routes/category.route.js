@@ -25,15 +25,15 @@ router.route("/random").get(getRandomCategories);
 router.route("/").post(
     verifyToken,
     verifyAdminRoles(ADMIN_ROLES.SUPER_ADMIN),
-    upload.single("image"), // Use upload.single for handling a single image
+    upload.single("image"),
     createCategory
 );
 
 // Update a category (only super admin can update)
-router.route("/:id").put(
+router.route("/:id").patch(
     verifyToken,
     verifyAdminRoles(ADMIN_ROLES.SUPER_ADMIN),
-    upload.single("image"), // Use upload.single for handling a single image
+    upload.single("image"),
     updateCategory
 );
 

@@ -58,7 +58,7 @@ router
 
 router
     .route("/:restaurantId/foods/:id")
-    .put(upload.fields([{ name: "images", maxCount: 5 }]), updateFoodItem)
+    .patch(upload.fields([{ name: "images", maxCount: 5 }]), updateFoodItem)
     .delete(deleteFoodItem);
 
 export default router;
