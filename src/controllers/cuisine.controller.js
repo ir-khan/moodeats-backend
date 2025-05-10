@@ -106,7 +106,7 @@ const deleteCuisine = asyncHandler(async (req, res) => {
 
     await deleteFromCloudinary(cuisine.image);
 
-    await cuisine.remove();
+    await cuisine.deleteOne();
 
     sendResponse(res, 200, "Cuisine deleted successfully");
 });

@@ -106,7 +106,7 @@ const deleteCategory = asyncHandler(async (req, res) => {
 
     await deleteFromCloudinary(category.image);
 
-    await category.remove();
+    await category.deleteOne();
 
     sendResponse(res, 200, "Category deleted successfully");
 });
