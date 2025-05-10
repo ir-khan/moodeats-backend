@@ -7,12 +7,16 @@ import {
     deleteFromCloudinary,
 } from "../utils/cloudinary.js";
 
+const sendResponse = (res, statusCode, message, data = {}) => {
+    return res
+        .status(statusCode)
+        .json(new ApiResponse(statusCode, message, data));
+};
+
 // Get all cuisines (accessible to all users)
 const getCuisines = asyncHandler(async (req, res) => {
     const cuisines = await Cuisine.find({ name: { $ne: "More" } });
-    res.status(200).json(
-        new ApiResponse(200, "Cuisines fetched successfully", { cuisines })
-    );
+    sendResponse(res, 200, "Cuisines fetched successfully", { cuisines });
 });
 
 // Get 5 random cuisines with a flag for more cuisines
@@ -32,13 +36,10 @@ const getRandomCuisines = asyncHandler(async (req, res) => {
 
     const cuisines = [...otherCuisines, moreCuisine];
 
-    res.status(200).json(
-        new ApiResponse(200, "Random cuisines fetched successfully", {
-            cuisines,
-        })
-    );
+    sendResponse(res, 200, "Random cuisines fetched successfully", {
+        cuisines,
+    });
 });
-
 
 // Create a new cuisine (only for super admin)
 const createCuisine = asyncHandler(async (req, res) => {
@@ -62,11 +63,9 @@ const createCuisine = asyncHandler(async (req, res) => {
         image: uploadResult.url,
     });
 
-    res.status(201).json(
-        new ApiResponse(201, "Cuisine created successfully", {
-            cuisine: newCuisine,
-        })
-    );
+    sendResponse(res, 201, "Cuisine created successfully", {
+        cuisine: newCuisine,
+    });
 });
 
 // Update a cuisine (only for super admin)
@@ -91,9 +90,9 @@ const updateCuisine = asyncHandler(async (req, res) => {
 
     await cuisine.save();
 
-    res.status(200).json(
-        new ApiResponse(200, "Cuisine updated successfully", { cuisine })
-    );
+    sendResponse(res, 200, "Cuisine updated successfully", {
+        cuisine,
+    });
 });
 
 // Delete a cuisine (only for super admin)
@@ -109,7 +108,7 @@ const deleteCuisine = asyncHandler(async (req, res) => {
 
     await cuisine.remove();
 
-    res.status(200).json(new ApiResponse(200, "Cuisine deleted successfully"));
+    sendResponse(res, 200, "Cuisine deleted successfully");
 });
 
 export {

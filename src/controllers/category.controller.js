@@ -7,12 +7,16 @@ import {
     deleteFromCloudinary,
 } from "../utils/cloudinary.js";
 
+const sendResponse = (res, statusCode, message, data = {}) => {
+    return res
+        .status(statusCode)
+        .json(new ApiResponse(statusCode, message, data));
+};
+
 // Get all categories (accessible to all users)
 const getCategories = asyncHandler(async (req, res) => {
     const categories = await Category.find({ name: { $ne: "More" } });
-    res.status(200).json(
-        new ApiResponse(200, "Categories fetched successfully", { categories })
-    );
+    sendResponse(res, 200, "Categories fetched successfully", { categories });
 });
 
 // Get 5 random categories with a flag for more categories
@@ -32,11 +36,9 @@ const getRandomCategories = asyncHandler(async (req, res) => {
 
     const categories = [...otherCategories, moreCategory];
 
-    res.status(200).json(
-        new ApiResponse(200, "Random categories fetched successfully", {
-            categories,
-        })
-    );
+    sendResponse(res, 200, "Random categories fetched successfully", {
+        categories,
+    });
 });
 
 // Create a new category (only for super admin)
@@ -61,11 +63,9 @@ const createCategory = asyncHandler(async (req, res) => {
         image: uploadResult.url,
     });
 
-    res.status(201).json(
-        new ApiResponse(201, "Category created successfully", {
-            category: newCategory,
-        })
-    );
+    sendResponse(res, 201, "Category created successfully", {
+        category: newCategory,
+    });
 });
 
 // Update a category (only for super admin)
@@ -90,9 +90,9 @@ const updateCategory = asyncHandler(async (req, res) => {
 
     await category.save();
 
-    res.status(200).json(
-        new ApiResponse(200, "Category updated successfully", { category })
-    );
+    sendResponse(res, 200, "Category updated successfully", {
+        category,
+    });
 });
 
 // Delete a category (only for super admin)
@@ -108,7 +108,7 @@ const deleteCategory = asyncHandler(async (req, res) => {
 
     await category.remove();
 
-    res.status(200).json(new ApiResponse(200, "Category deleted successfully"));
+    sendResponse(res, 200, "Category deleted successfully");
 });
 
 export {
