@@ -13,18 +13,15 @@ import { USER_ROLES } from "../../constants/roles.js";
 
 const router = express.Router();
 
-// Register restaurant
 router
     .route("/register")
     .post(verifyToken, verifyUserRoles(USER_ROLES.OWNER), registerRestaurant);
 
-// Get current user's restaurant details
 router
     .route("/me")
     .get(verifyToken, verifyUserRoles(USER_ROLES.OWNER), getMyRestaurant);
 
-// Update restaurant details
-router.route("/update").patch(
+router.route("/:id").patch(
     verifyToken,
     verifyUserRoles(USER_ROLES.OWNER),
     upload.fields([

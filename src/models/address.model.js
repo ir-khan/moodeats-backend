@@ -13,7 +13,6 @@ const addressSchema = new Schema(
         state: { type: String },
         zipCode: { type: String },
         country: { type: String, required: true },
-
         location: {
             type: {
                 type: String,
@@ -26,7 +25,6 @@ const addressSchema = new Schema(
                 required: true,
             },
         },
-
         isDefault: { type: Boolean, default: false },
     },
     { timestamps: true }

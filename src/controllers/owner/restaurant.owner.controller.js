@@ -52,9 +52,14 @@ const getMyRestaurant = asyncHandler(async (req, res) => {
 });
 
 const updateRestaurantDetails = asyncHandler(async (req, res) => {
-    const restaurant = await Restaurant.findOne({ owner: req.user._id });
+    const restaurantId = req.params.id;
 
+    const restaurant = await Restaurant.findById(restaurantId);
     if (!restaurant) throw new ApiError(404, "Restaurant not found");
+
+    if (restaurant.owner.toString() !== req.user._id.toString()) {
+        throw new ApiError(403, "Unauthorized to update this restaurant");
+    }
 
     const { name, phone, cuisine, isOpen } = req.body;
 
