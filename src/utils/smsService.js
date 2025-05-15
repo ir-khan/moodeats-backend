@@ -9,7 +9,7 @@ const client = twilio(
 export const sendOtpViaSMS = async (phone, otp) => {
     try {
         const message = await client.messages.create({
-            body: `${otp} is your verification code from MoodEats. Do not share this code with anyone.`,
+            body: `Your OTP is: ${otp}.`,
             from: process.env.TWILIO_PHONE_NUMBER,
             to: phone,
         });
