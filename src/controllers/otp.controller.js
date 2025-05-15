@@ -15,7 +15,7 @@ const requestOTP = asyncHandler(async (req, res) => {
     const otpInstance = OTP.generateOTP(phone);
     await otpInstance.save();
 
-    // await sendOtpViaSMS(phone, otpInstance.otp);
+    await sendOtpViaSMS(phone, otpInstance.otp);
 
     res.status(200).json(new ApiResponse(200, "OTP sent successfully"));
 });

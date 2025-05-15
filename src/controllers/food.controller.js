@@ -1,7 +1,7 @@
-import { asyncHandler } from "../../utils/asyncHandler.js";
-import { Food } from "../../models/food.model.js";
-import { ApiError } from "../../utils/ApiError.js";
-import { ApiResponse } from "../../utils/ApiResponse.js";
+import { asyncHandler } from "../utils/asyncHandler.js";
+import { Food } from "../models/food.model.js";
+import { ApiError } from "../utils/ApiError.js";
+import { ApiResponse } from "../utils/ApiResponse.js";
 
 const getAllRestaurantFoods = asyncHandler(async (req, res) => {
     const {

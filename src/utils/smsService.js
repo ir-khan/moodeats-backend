@@ -1,32 +1,24 @@
-import axios from "axios";
+import twilio from "twilio";
 import { ApiError } from "./ApiError.js";
+
+const client = twilio(
+    process.env.TWILIO_ACCOUNT_SID,
+    process.env.TWILIO_AUTH_TOKEN
+);
 
 export const sendOtpViaSMS = async (phone, otp) => {
     try {
-        const response = await axios.post(
-            process.env.BREVO_SMS_URL,
-            {
-                sender: process.env.SENDER_NAME,
-                recipient: phone,
-                content: `${otp} is your verification code from MoodEats. Do not share this code with anyone.`,
-                type: "transactional",
-            },
-            {
-                headers: {
-                    accept: "application/json",
-                    "content-type": "application/json",
-                    "api-key": process.env.BREVO_API_KEY,
-                },
-            }
-        );
-        console.log("OTP Sent Successfully:", response.data);
-        return response.data;
+        const message = await client.messages.create({
+            body: `${otp} is your verification code from MoodEats. Do not share this code with anyone.`,
+            from: process.env.TWILIO_PHONE_NUMBER,
+            to: phone,
+        });
+
+        // console.log("OTP sent via Twilio:", message.sid);
+        return message;
     } catch (error) {
-        console.error(
-            "Failed to send OTP:",
-            error.response ? error.response.data : error.message
-        );
-        throw new ApiError(500, "Failed to send OTP");
+        console.error("Failed to send OTP via Twilio:", error.message);
+        throw new ApiError(500, "Failed to send OTP via Twilio");
     }
 };
 
