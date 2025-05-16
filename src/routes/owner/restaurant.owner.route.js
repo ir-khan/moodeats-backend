@@ -13,9 +13,15 @@ import { USER_ROLES } from "../../constants/roles.js";
 
 const router = express.Router();
 
-router
-    .route("/register")
-    .post(verifyToken, verifyUserRoles(USER_ROLES.OWNER), registerRestaurant);
+router.route("/register").post(
+    verifyToken,
+    verifyUserRoles(USER_ROLES.OWNER),
+    upload.fields([
+        { name: "logo", maxCount: 1 },
+        { name: "images", maxCount: 5 },
+    ]),
+    registerRestaurant
+);
 
 router
     .route("/me")

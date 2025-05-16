@@ -23,11 +23,32 @@ const registerRestaurant = asyncHandler(async (req, res) => {
         throw new ApiError(409, "Restaurant already registered");
     }
 
+    if (!req.files?.logo?.[0]) {
+        throw new ApiError(400, "Logo is required");
+    }
+
+    const logoUpload = await uploadOnCloudinary(req.files.logo[0].path);
+    if (!logoUpload?.url) {
+        throw new ApiError(500, "Failed to upload logo");
+    }
+
+    if (!req.files?.images || req.files.images.length === 0) {
+        throw new ApiError(400, "At least one image is required");
+    }
+
+    const imageUrls = await Promise.all(
+        req.files.images.map((file) =>
+            uploadOnCloudinary(file.path).then((res) => res.url)
+        )
+    );
+
     const restaurant = await Restaurant.create({
         name,
         phone,
         cuisine,
         owner: req.user._id,
+        logo: logoUpload.url,
+        images: imageUrls,
     });
 
     res.status(201).json(
