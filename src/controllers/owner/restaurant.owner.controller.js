@@ -2,23 +2,47 @@ import { asyncHandler } from "../../utils/asyncHandler.js";
 import { ApiError } from "../../utils/ApiError.js";
 import { ApiResponse } from "../../utils/ApiResponse.js";
 import { Restaurant } from "../../models/restaurant.model.js";
+import { Address } from "../../models/address.model.js";
 import {
     uploadOnCloudinary,
     deleteFromCloudinary,
 } from "../../utils/cloudinary.js";
 
 const registerRestaurant = asyncHandler(async (req, res) => {
-    const { name, phone, cuisine } = req.body;
+    const {
+        name,
+        phone,
+        cuisine,
+        label,
+        street,
+        city,
+        state,
+        zipCode,
+        country,
+        coordinates,
+    } = req.body;
 
-    if (!name || !phone || !cuisine) {
-        throw new ApiError(400, "All fields are required");
+    if (
+        !name ||
+        !phone ||
+        !cuisine ||
+        !label ||
+        !street ||
+        !city ||
+        !state ||
+        !country ||
+        !coordinates
+    ) {
+        throw new ApiError(
+            400,
+            "All restaurant and address fields are required except zipCode"
+        );
     }
 
     const existing = await Restaurant.findOne({
         name: name.trim(),
         owner: req.user._id,
     });
-
     if (existing) {
         throw new ApiError(409, "Restaurant already registered");
     }
@@ -26,7 +50,6 @@ const registerRestaurant = asyncHandler(async (req, res) => {
     if (!req.files?.logo?.[0]) {
         throw new ApiError(400, "Logo is required");
     }
-
     const logoUpload = await uploadOnCloudinary(req.files.logo[0].path);
     if (!logoUpload?.url) {
         throw new ApiError(500, "Failed to upload logo");
@@ -35,12 +58,25 @@ const registerRestaurant = asyncHandler(async (req, res) => {
     if (!req.files?.images || req.files.images.length === 0) {
         throw new ApiError(400, "At least one image is required");
     }
-
     const imageUrls = await Promise.all(
         req.files.images.map((file) =>
             uploadOnCloudinary(file.path).then((res) => res.url)
         )
     );
+
+    const address = await Address.create({
+        label,
+        street,
+        city,
+        state,
+        zipCode,
+        country,
+        location: {
+            type: "Point",
+            coordinates: coordinates,
+        },
+        ...(zipCode && { zipCode }),
+    });
 
     const restaurant = await Restaurant.create({
         name,
@@ -49,6 +85,7 @@ const registerRestaurant = asyncHandler(async (req, res) => {
         owner: req.user._id,
         logo: logoUpload.url,
         images: imageUrls,
+        addresses: [address._id],
     });
 
     res.status(201).json(

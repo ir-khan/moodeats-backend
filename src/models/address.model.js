@@ -10,7 +10,7 @@ const addressSchema = new Schema(
         },
         street: { type: String, required: true },
         city: { type: String, required: true },
-        state: { type: String },
+        state: { type: String, required: true },
         zipCode: { type: String },
         country: { type: String, required: true },
         location: {
