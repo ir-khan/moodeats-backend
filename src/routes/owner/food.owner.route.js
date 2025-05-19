@@ -3,6 +3,8 @@ import {
     createFoodItem,
     updateFoodItem,
     deleteFoodItem,
+    getRestaurantFoods,
+    getRestaurantFoodById,
 } from "../../controllers/owner/food.owner.controller.js";
 import upload from "../../middlewares/multer.middleware.js";
 import {
@@ -14,7 +16,6 @@ import { USER_ROLES } from "../../constants/roles.js";
 
 const router = express.Router();
 
-// Apply middlewares for all food routes
 router.use(
     "/:restaurantId/food",
     verifyToken,
@@ -22,21 +23,15 @@ router.use(
     verifyOwner
 );
 
-// Create food item
-router.post(
-    "/:restaurantId/food",
-    upload.fields([{ name: "images", maxCount: 5 }]),
-    createFoodItem
-);
+router
+    .route("/:restaurantId/food")
+    .get(getRestaurantFoods)
+    .post(upload.fields([{ name: "images", maxCount: 5 }]), createFoodItem);
 
-// Update food item
-router.patch(
-    "/:restaurantId/food/:id",
-    upload.fields([{ name: "images", maxCount: 5 }]),
-    updateFoodItem
-);
-
-// Delete food item
-router.delete("/:restaurantId/food/:id", deleteFoodItem);
+router
+    .route("/:restaurantId/food/:id")
+    .get(getRestaurantFoodById)
+    .patch(upload.fields([{ name: "images", maxCount: 5 }]), updateFoodItem)
+    .delete(deleteFoodItem);
 
 export default router;

@@ -9,6 +9,8 @@ import {
 import {
     getAllRestaurants,
     getPendingRestaurants,
+    getRestaurantById,
+    updateRestaurantByAdmin,
     approveRestaurant,
     rejectRestaurant,
     deleteRestaurant,
@@ -44,18 +46,16 @@ router
         createAdmin
     );
 
-router
-    .route("/login")
-    .post(
-        // verifyToken,
-        // verifyAdminRoles(
-        //     ADMIN_ROLES.SUPER_ADMIN,
-        //     ADMIN_ROLES.ADMIN,
-        //     ADMIN_ROLES.MODERATOR,
-        //     ADMIN_ROLES.SUPPORT
-        // ),
-        loginAdmin
-    );
+router.route("/login").post(
+    // verifyToken,
+    // verifyAdminRoles(
+    //     ADMIN_ROLES.SUPER_ADMIN,
+    //     ADMIN_ROLES.ADMIN,
+    //     ADMIN_ROLES.MODERATOR,
+    //     ADMIN_ROLES.SUPPORT
+    // ),
+    loginAdmin
+);
 
 router
     .route("/refresh-token")
@@ -135,6 +135,19 @@ router
         verifyToken,
         verifyAdminRoles(ADMIN_ROLES.SUPER_ADMIN),
         deleteRestaurant
+    );
+
+router
+    .route("/restaurants/:id")
+    .get(
+        verifyToken,
+        verifyAdminRoles(ADMIN_ROLES.SUPER_ADMIN),
+        getRestaurantById
+    )
+    .patch(
+        verifyToken,
+        verifyAdminRoles(ADMIN_ROLES.SUPER_ADMIN),
+        updateRestaurantByAdmin
     );
 
 // -------- USER MANAGEMENT ROUTES --------

@@ -3,6 +3,7 @@ import { asyncHandler } from "../utils/asyncHandler.js";
 import { ApiError } from "../utils/ApiError.js";
 import { User } from "../models/user.model.js";
 import { Admin } from "../models/admin.model.js";
+import { Restaurant } from "../models/restaurant.model.js";
 import { ADMIN_ROLES } from "../constants/roles.js";
 
 const verifyToken = asyncHandler(async (req, _, next) => {

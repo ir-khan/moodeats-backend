@@ -11,13 +11,64 @@ const sendResponse = (res, statusCode, message, data = {}) => {
 };
 
 const getAllRestaurants = asyncHandler(async (req, res) => {
-    const restaurants = await Restaurant.find()
+    const { page = 1, limit = 10, status, cuisine, owner, search } = req.query;
+
+    const filter = {};
+    if (status) filter.status = status;
+    if (cuisine) filter.cuisine = cuisine;
+    if (owner) filter.owner = owner;
+    if (search) {
+        filter.name = { $regex: search, $options: "i" };
+    }
+
+    const total = await Restaurant.countDocuments(filter);
+    const restaurants = await Restaurant.find(filter)
+        .skip((page - 1) * limit)
+        .limit(Number(limit))
         .populate("owner", "name email")
         .populate("cuisine", "name")
         .populate("reviews")
         .populate("orders");
 
-    sendResponse(res, 200, "All restaurants fetched", { restaurants });
+    sendResponse(res, 200, "Restaurants fetched", {
+        total,
+        page: Number(page),
+        limit: Number(limit),
+        restaurants,
+    });
+});
+
+const getRestaurantById = asyncHandler(async (req, res) => {
+    const { id } = req.params;
+
+    const restaurant = await Restaurant.findById(id)
+        .populate("owner", "name email")
+        .populate("cuisine", "name")
+        .populate("reviews")
+        .populate("orders");
+
+    if (!restaurant) {
+        throw new ApiError(404, "Restaurant not found");
+    }
+
+    sendResponse(res, 200, "Restaurant fetched", { restaurant });
+});
+
+const updateRestaurantByAdmin = asyncHandler(async (req, res) => {
+    const { id } = req.params;
+    const updates = req.body;
+
+    const restaurant = await Restaurant.findByIdAndUpdate(id, updates, {
+        new: true,
+    })
+        .populate("owner", "name email")
+        .populate("cuisine", "name");
+
+    if (!restaurant) {
+        throw new ApiError(404, "Restaurant not found");
+    }
+
+    sendResponse(res, 200, "Restaurant updated", { restaurant });
 });
 
 const getPendingRestaurants = asyncHandler(async (req, res) => {
@@ -28,7 +79,7 @@ const getPendingRestaurants = asyncHandler(async (req, res) => {
         .populate("cuisine", "name");
 
     sendResponse(res, 200, "Pending restaurants fetched", {
-        pendingRestaurants,
+        restaurants: pendingRestaurants,
     });
 });
 
@@ -76,6 +127,8 @@ const deleteRestaurant = asyncHandler(async (req, res) => {
 export {
     getAllRestaurants,
     getPendingRestaurants,
+    getRestaurantById,
+    updateRestaurantByAdmin,
     approveRestaurant,
     rejectRestaurant,
     deleteRestaurant,
