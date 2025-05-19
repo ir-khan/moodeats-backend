@@ -16,15 +16,15 @@ const getRecommendations = asyncHandler(async (req, res) => {
         throw new ApiError(400, "Mood is required");
     }
 
-    const prompt = `You are an intelligent food assistant. A user is currently feeling "${mood}". ${description ? `They also said: "` + description + `". ` : ``}Your task is to deeply understand the user's emotional state and suggest a list of food-related tags that best match their mood. These tags should represent general food categories, cuisines, dietary types, or cooking styles that are comforting, healthy, and commonly associated with that mood.
+    const prompt = `You are an intelligent food assistant. A user is currently feeling "${mood}". ${description ? `They also said: "` + description + `". ` : ``}Your task is to deeply understand the user's emotional state and suggest a list of specific, food-related mood tags that match their current feelings. These tags should describe mood-based food experiences such as emotional needs, comfort levels, energy desires, or cravings.
 
-    Respond ONLY with a plain JSON array of lowercase tag strings.
+    Respond ONLY with a plain JSON array of lowercase mood-related food tags.
     
-    Do not include any explanations or extra text.
-    Avoid brand names, vague emotions, or abstract concepts.
-    Make sure the tags can be directly used to query a food database or filter content.
+    Do not include explanations or extra text.
+    Avoid brand names or generic terms like "food" or "meal".
+    Make sure the tags are specific enough to filter or categorize food content based on mood.
     
-    Example response: ["comfort", "high protein", "vegetarian", "soups", "mediterranean"]
+    Example response: ["stress-relief", "feel-good", "energizing", "light-and-fresh", "indulgent", "warming"]
     `;
 
     const content = await getAIResponse(prompt);
