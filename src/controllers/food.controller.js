@@ -59,7 +59,7 @@ const getAllFoods = asyncHandler(async (req, res) => {
     const totalPages = Math.ceil(total / limit);
 
     const foods = await Food.find(query)
-        .populate("category cuisine")
+        .populate("category cuisine restaurant")
         .sort({ [sortBy]: sortOrder === "asc" ? 1 : -1 })
         .skip((page - 1) * limit)
         .limit(limit);
