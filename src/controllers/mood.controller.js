@@ -24,7 +24,7 @@ const getRecommendations = asyncHandler(async (req, res) => {
     Avoid brand names or generic terms like "food" or "meal".
     Make sure the tags are specific enough to filter or categorize food content based on mood.
     
-    Example response: ["stress-relief", "feel-good", "energizing", "light-and-fresh", "indulgent", "warming"]
+    Example response: ["comforting", "nostalgic" "energizing", "light-and-fresh", "indulgent", "warming"]
     `;
 
     const content = await getAIResponse(prompt);
