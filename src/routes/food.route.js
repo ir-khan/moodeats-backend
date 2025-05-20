@@ -1,8 +1,8 @@
 import express from "express";
-import { getAllRestaurantFoods } from "../controllers/food.controller.js";
+import { getAllFoods } from "../controllers/food.controller.js";
 
 const router = express.Router();
 
-router.route("/:restaurantId").get(getAllRestaurantFoods);
+router.route("/").get(getAllFoods);
 
 export default router;

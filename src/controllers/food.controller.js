@@ -3,25 +3,50 @@ import { Food } from "../models/food.model.js";
 import { ApiError } from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 
-const getAllRestaurantFoods = asyncHandler(async (req, res) => {
-    const {
+const getAllFoods = asyncHandler(async (req, res) => {
+    let {
         page = 1,
         limit = 10,
         sortBy = "createdAt",
         sortOrder = "desc",
         search = "",
         category,
-        moodTag,
+        cuisine,
     } = req.query;
 
-    const restaurant = req.params.restaurantId || req.user?.restaurant;
+    page = parseInt(page);
+    limit = parseInt(limit);
 
-    if (!restaurant) throw new ApiError(400, "Restaurant ID is required");
+    if (isNaN(page) || page < 1) {
+        throw new ApiError(400, "Page must be a positive number");
+    }
+    if (isNaN(limit) || limit < 1) {
+        throw new ApiError(400, "Limit must be a positive number");
+    }
 
-    const query = { restaurant };
+    const allowedSortFields = ["createdAt", "name", "price"];
+    if (!allowedSortFields.includes(sortBy)) {
+        throw new ApiError(
+            400,
+            `Invalid sortBy field. Allowed: ${allowedSortFields.join(", ")}`
+        );
+    }
 
-    if (category) query.category = category;
-    if (moodTag) query.moodTags = moodTag;
+    const query = {};
+
+    if (category) {
+        query.category = category;
+    }
+
+    if (cuisine) {
+        query.cuisine = cuisine;
+    }
+
+    if (Array.isArray(req.query.moodTags)) {
+        query.moodTags = { $in: req.query.moodTags };
+    } else if (req.query.moodTags) {
+        query.moodTags = { $in: [req.query.moodTags] };
+    }
 
     if (search) {
         query.$or = [
@@ -31,21 +56,23 @@ const getAllRestaurantFoods = asyncHandler(async (req, res) => {
     }
 
     const total = await Food.countDocuments(query);
+    const totalPages = Math.ceil(total / limit);
 
     const foods = await Food.find(query)
         .populate("category cuisine")
         .sort({ [sortBy]: sortOrder === "asc" ? 1 : -1 })
         .skip((page - 1) * limit)
-        .limit(parseInt(limit));
+        .limit(limit);
 
     res.status(200).json(
-        new ApiResponse(200, "Food items fetched", {
+        new ApiResponse(200, "Food items fetched successfully", {
             total,
-            page: parseInt(page),
-            limit: parseInt(limit),
+            page,
+            limit,
+            totalPages,
             foods,
         })
     );
 });
 
-export { getAllRestaurantFoods };
+export { getAllFoods };
