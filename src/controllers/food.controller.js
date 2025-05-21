@@ -1,46 +1,21 @@
+import mongoose from "mongoose";
 import { asyncHandler } from "../utils/asyncHandler.js";
 import { Food } from "../models/food.model.js";
 import { ApiError } from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 
 const getAllFoods = asyncHandler(async (req, res) => {
-    let {
-        page = 1,
-        limit = 10,
-        sortBy = "createdAt",
-        sortOrder = "desc",
-        search = "",
-        category,
-        cuisine,
-    } = req.query;
+    let { limit = 10, search = "", category, cuisine } = req.query;
 
-    page = parseInt(page);
     limit = parseInt(limit);
 
-    if (isNaN(page) || page < 1) {
-        throw new ApiError(400, "Page must be a positive number");
-    }
-    if (isNaN(limit) || limit < 1) {
+    if (isNaN(limit) || limit < 1)
         throw new ApiError(400, "Limit must be a positive number");
-    }
-
-    const allowedSortFields = ["createdAt", "name", "price"];
-    if (!allowedSortFields.includes(sortBy)) {
-        throw new ApiError(
-            400,
-            `Invalid sortBy field. Allowed: ${allowedSortFields.join(", ")}`
-        );
-    }
 
     const query = {};
 
-    if (category) {
-        query.category = category;
-    }
-
-    if (cuisine) {
-        query.cuisine = cuisine;
-    }
+    if (category) query.category = category;
+    if (cuisine) query.cuisine = cuisine;
 
     if (Array.isArray(req.query.moodTags)) {
         query.moodTags = { $in: req.query.moodTags };
@@ -56,9 +31,16 @@ const getAllFoods = asyncHandler(async (req, res) => {
     }
 
     const total = await Food.countDocuments(query);
-    const totalPages = Math.ceil(total / limit);
 
-    const foods = await Food.find(query)
+    const sampled = await Food.aggregate([
+        { $match: query },
+        { $sample: { size: limit } },
+        { $project: { _id: 1 } },
+    ]);
+
+    const ids = sampled.map((item) => item._id);
+
+    let foods = await Food.find({ _id: { $in: ids } })
         .populate({ path: "category", select: "name" })
         .populate({ path: "cuisine", select: "name" })
         .populate({
@@ -66,17 +48,17 @@ const getAllFoods = asyncHandler(async (req, res) => {
             populate: {
                 path: "addresses",
             },
-        })
-        .sort({ [sortBy]: sortOrder === "asc" ? 1 : -1 })
-        .skip((page - 1) * limit)
-        .limit(limit);
+        });
+
+    const idOrder = new Map(ids.map((id, index) => [id.toString(), index]));
+    foods.sort(
+        (a, b) => idOrder.get(a._id.toString()) - idOrder.get(b._id.toString())
+    );
 
     res.status(200).json(
-        new ApiResponse(200, "Food items fetched successfully", {
+        new ApiResponse(200, "Random food items fetched successfully", {
             total,
-            page,
             limit,
-            totalPages,
             foods,
         })
     );
