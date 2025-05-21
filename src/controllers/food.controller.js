@@ -5,12 +5,15 @@ import { ApiError } from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 
 const getAllFoods = asyncHandler(async (req, res) => {
-    let { limit = 10, search = "", category, cuisine } = req.query;
+    let { limit = 10, page = 1, search = "", category, cuisine } = req.query;
 
     limit = parseInt(limit);
+    page = parseInt(page);
 
     if (isNaN(limit) || limit < 1)
         throw new ApiError(400, "Limit must be a positive number");
+    if (isNaN(page) || page < 1)
+        throw new ApiError(400, "Page must be a positive number");
 
     const query = {};
 
@@ -31,26 +34,28 @@ const getAllFoods = asyncHandler(async (req, res) => {
     }
 
     const total = await Food.countDocuments(query);
+    const totalPages = Math.ceil(total / limit);
 
-    const sampled = await Food.aggregate([
+    const allIds = await Food.aggregate([
         { $match: query },
-        { $sample: { size: limit } },
+        { $sample: { size: total } },
         { $project: { _id: 1 } },
     ]);
 
-    const ids = sampled.map((item) => item._id);
+    const paginatedIds = allIds
+        .slice((page - 1) * limit, page * limit)
+        .map((doc) => doc._id);
 
-    let foods = await Food.find({ _id: { $in: ids } })
+    const idOrder = new Map(paginatedIds.map((id, i) => [id.toString(), i]));
+
+    let foods = await Food.find({ _id: { $in: paginatedIds } })
         .populate({ path: "category", select: "name" })
         .populate({ path: "cuisine", select: "name" })
         .populate({
             path: "restaurant",
-            populate: {
-                path: "addresses",
-            },
+            populate: { path: "addresses" },
         });
 
-    const idOrder = new Map(ids.map((id, index) => [id.toString(), index]));
     foods.sort(
         (a, b) => idOrder.get(a._id.toString()) - idOrder.get(b._id.toString())
     );
@@ -59,6 +64,8 @@ const getAllFoods = asyncHandler(async (req, res) => {
         new ApiResponse(200, "Random food items fetched successfully", {
             total,
             limit,
+            page,
+            totalPages,
             foods,
         })
     );
