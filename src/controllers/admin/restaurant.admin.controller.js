@@ -27,8 +27,7 @@ const getAllRestaurants = asyncHandler(async (req, res) => {
         .limit(Number(limit))
         .populate("owner", "name email")
         .populate("cuisine", "name")
-        .populate("reviews")
-        .populate("orders");
+        // .populate("reviews")
 
     sendResponse(res, 200, "Restaurants fetched", {
         total,
@@ -44,8 +43,7 @@ const getRestaurantById = asyncHandler(async (req, res) => {
     const restaurant = await Restaurant.findById(id)
         .populate("owner", "name email")
         .populate("cuisine", "name")
-        .populate("reviews")
-        .populate("orders");
+        // .populate("reviews")
 
     if (!restaurant) {
         throw new ApiError(404, "Restaurant not found");
