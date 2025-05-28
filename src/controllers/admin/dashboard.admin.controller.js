@@ -100,7 +100,7 @@ const getAdminDashboardMetrics = asyncHandler(async (req, res) => {
             },
             {
                 $project: {
-                    tag: "$_id",
+                    name: "$_id",
                     count: 1,
                     _id: 0,
                 },
