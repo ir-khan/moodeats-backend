@@ -27,6 +27,7 @@ const getAllRestaurants = asyncHandler(async (req, res) => {
         .limit(Number(limit))
         .populate("cuisine")
         // .populate("reviews")
+        .populate("addresses");
 
     sendResponse(res, 200, "Restaurants fetched", {
         total,
@@ -42,6 +43,7 @@ const getRestaurantById = asyncHandler(async (req, res) => {
     const restaurant = await Restaurant.findById(id)
         .populate("cuisine")
         // .populate("reviews")
+        .populate("addresses");
 
     if (!restaurant) {
         throw new ApiError(404, "Restaurant not found");
@@ -57,7 +59,8 @@ const updateRestaurantByAdmin = asyncHandler(async (req, res) => {
     const restaurant = await Restaurant.findByIdAndUpdate(id, updates, {
         new: true,
     })
-        .populate("cuisine");
+        .populate("cuisine")
+        .populate("addresses");
 
     if (!restaurant) {
         throw new ApiError(404, "Restaurant not found");
@@ -70,7 +73,8 @@ const getPendingRestaurants = asyncHandler(async (req, res) => {
     const pendingRestaurants = await Restaurant.find({
         status: RESTAURANT_STATUS.PENDING,
     })
-        .populate("cuisine");
+        .populate("cuisine")
+        .populate("addresses");
 
     sendResponse(res, 200, "Pending restaurants fetched", {
         restaurants: pendingRestaurants,
