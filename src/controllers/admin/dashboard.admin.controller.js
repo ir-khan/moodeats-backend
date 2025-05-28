@@ -109,19 +109,15 @@ const getAdminDashboardMetrics = asyncHandler(async (req, res) => {
     ]);
 
     return res.status(200).json(
-        new ApiResponse(
-            200,
-            {
-                totalUsers,
-                totalRestaurants,
-                restaurantStatusCounts,
-                totalFoods,
-                categoryStats: categoryStatsAgg,
-                cuisineStats: cuisineStatsAgg,
-                moodTagTrends: moodTagStatsAgg,
-            },
-            "Dashboard metrics fetched successfully"
-        )
+        new ApiResponse(200, "Dashboard metrics fetched successfully", {
+            totalUsers,
+            totalRestaurants,
+            restaurantStatusCounts,
+            totalFoods,
+            categoryStats: categoryStatsAgg,
+            cuisineStats: cuisineStatsAgg,
+            moodTagTrends: moodTagStatsAgg,
+        })
     );
 });
 
