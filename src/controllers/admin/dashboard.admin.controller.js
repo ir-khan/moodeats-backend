@@ -58,6 +58,7 @@ const getAdminDashboardMetrics = asyncHandler(async (req, res) => {
                 $project: {
                     _id: 0,
                     name: "$categoryInfo.name",
+                    image: "$categoryInfo.image",
                     count: 1,
                 },
             },
@@ -84,6 +85,7 @@ const getAdminDashboardMetrics = asyncHandler(async (req, res) => {
                 $project: {
                     _id: 0,
                     name: "$cuisineInfo.name",
+                    image: "$cuisineInfo.image",
                     count: 1,
                 },
             },
