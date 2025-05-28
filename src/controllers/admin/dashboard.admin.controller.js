@@ -1,32 +1,112 @@
 import { asyncHandler } from "../../utils/asyncHandler.js";
 import { User } from "../../models/user.model.js";
 import { Restaurant } from "../../models/restaurant.model.js";
-import { Order } from "../../models/order.model.js";
+import { Food } from "../../models/food.model.js";
 import { ApiResponse } from "../../utils/ApiResponse.js";
 
 const getAdminDashboardMetrics = asyncHandler(async (req, res) => {
     const [
         totalUsers,
         totalRestaurants,
-        pendingRestaurants,
-        totalOrders,
-        totalSalesAgg,
+        restaurantStatusCounts,
+        totalFoods,
+        categoryStatsAgg,
+        cuisineStatsAgg,
+        moodTagStatsAgg,
     ] = await Promise.all([
         User.countDocuments(),
         Restaurant.countDocuments(),
-        Restaurant.countDocuments({ isApproved: false }),
-        Order.countDocuments(),
-        Order.aggregate([
+
+        // Count restaurants by status
+        Restaurant.aggregate([
             {
                 $group: {
-                    _id: null,
-                    totalSales: { $sum: "$orderPrice" },
+                    _id: "$status",
+                    count: { $sum: 1 },
+                },
+            },
+            {
+                $project: {
+                    status: "$_id",
+                    count: 1,
+                    _id: 0,
+                },
+            },
+        ]),
+
+        // Total foods
+        Food.countDocuments(),
+
+        // Category-wise food count
+        Food.aggregate([
+            {
+                $group: {
+                    _id: "$category",
+                    count: { $sum: 1 },
+                },
+            },
+            {
+                $lookup: {
+                    from: "categories",
+                    localField: "_id",
+                    foreignField: "_id",
+                    as: "categoryInfo",
+                },
+            },
+            { $unwind: "$categoryInfo" },
+            {
+                $project: {
+                    _id: 0,
+                    name: "$categoryInfo.name",
+                    count: 1,
+                },
+            },
+        ]),
+
+        // Cuisine-wise food count
+        Food.aggregate([
+            {
+                $group: {
+                    _id: "$cuisine",
+                    count: { $sum: 1 },
+                },
+            },
+            {
+                $lookup: {
+                    from: "cuisines",
+                    localField: "_id",
+                    foreignField: "_id",
+                    as: "cuisineInfo",
+                },
+            },
+            { $unwind: "$cuisineInfo" },
+            {
+                $project: {
+                    _id: 0,
+                    name: "$cuisineInfo.name",
+                    count: 1,
+                },
+            },
+        ]),
+
+        // Mood tag usage stats
+        Food.aggregate([
+            { $unwind: "$moodTags" },
+            {
+                $group: {
+                    _id: "$moodTags",
+                    count: { $sum: 1 },
+                },
+            },
+            {
+                $project: {
+                    tag: "$_id",
+                    count: 1,
+                    _id: 0,
                 },
             },
         ]),
     ]);
-
-    const totalSales = totalSalesAgg[0]?.totalSales || 0;
 
     return res.status(200).json(
         new ApiResponse(
@@ -34,9 +114,11 @@ const getAdminDashboardMetrics = asyncHandler(async (req, res) => {
             {
                 totalUsers,
                 totalRestaurants,
-                pendingRestaurants,
-                totalOrders,
-                totalSales: parseFloat(totalSales.toFixed(2)),
+                restaurantStatusCounts,
+                totalFoods,
+                categoryStats: categoryStatsAgg,
+                cuisineStats: cuisineStatsAgg,
+                moodTagTrends: moodTagStatsAgg,
             },
             "Dashboard metrics fetched successfully"
         )
