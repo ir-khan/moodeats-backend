@@ -68,11 +68,13 @@ const getAllFoods = asyncHandler(async (req, res) => {
             path: "restaurant",
             populate: { path: "addresses" },
         });
-    
+
     console.log(total);
-    console.log(totalPages);
-    console.log(foods);
-    
+    console.log(
+        foods.array.forEach((food) => {
+            food.moodTags;
+        })
+    );
 
     res.status(200).json(
         new ApiResponse(200, "Food items fetched successfully", {

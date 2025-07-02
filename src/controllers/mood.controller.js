@@ -21,7 +21,7 @@ const getRecommendations = asyncHandler(async (req, res) => {
     The output should align with this style of tags: ["comforting", "indulgent", "satisfying", "craveable", "energizing", "crunchy", "savory", "cheesy", "aromatic", "spicy"]. You may generate new tags, but keep them in a similar tone and structure — emotional, sensory, and food-related.
     
     Rules:
-    - Only return a plain JSON array (maximum 5 items).
+    - Only return a plain JSON array (3 - 5 items).
     - No explanation or extra text.
     - Tags must be lowercase, single words or hyphenated phrases suitable for food filtering and search.
     
