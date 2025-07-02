@@ -58,41 +58,24 @@ const getAllFoods = asyncHandler(async (req, res) => {
     const total = await Food.countDocuments(query);
     const totalPages = Math.ceil(total / limit);
 
-    let paginatedIds = [];
-
-    if (total > 0) {
-        const allIds = await Food.aggregate([
-            { $match: query },
-            { $sample: { size: Math.min(total, 1000) } },
-            { $project: { _id: 1 } },
-        ]);
-
-        paginatedIds = allIds
-            .slice((page - 1) * limit, page * limit)
-            .map((doc) => doc._id);
-    }
-
-    const idOrder = new Map(paginatedIds.map((id, i) => [id.toString(), i]));
-
-    let foods = [];
-
-    if (paginatedIds.length > 0) {
-        foods = await Food.find({ _id: { $in: paginatedIds } })
-            .populate({ path: "category", select: "name" })
-            .populate({ path: "cuisine", select: "name" })
-            .populate({
-                path: "restaurant",
-                populate: { path: "addresses" },
-            });
-
-        foods.sort(
-            (a, b) =>
-                idOrder.get(a._id.toString()) - idOrder.get(b._id.toString())
-        );
-    }
+    const foods = await Food.find(query)
+        .sort({ [sortBy]: sortOrder === "desc" ? -1 : 1 })
+        .skip((page - 1) * limit)
+        .limit(limit)
+        .populate({ path: "category", select: "name" })
+        .populate({ path: "cuisine", select: "name" })
+        .populate({
+            path: "restaurant",
+            populate: { path: "addresses" },
+        });
+    
+    console.log(total);
+    console.log(totalPages);
+    console.log(foods);
+    
 
     res.status(200).json(
-        new ApiResponse(200, "Random food items fetched successfully", {
+        new ApiResponse(200, "Food items fetched successfully", {
             total,
             limit,
             page,
@@ -100,7 +83,6 @@ const getAllFoods = asyncHandler(async (req, res) => {
             foods,
         })
     );
-
 });
 
 export { getAllFoods };
