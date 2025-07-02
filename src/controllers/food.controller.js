@@ -70,11 +70,9 @@ const getAllFoods = asyncHandler(async (req, res) => {
         });
 
     console.log(total);
-    console.log(
-        foods.array.forEach((food) => {
-            food.moodTags;
-        })
-    );
+    foods.forEach((food) => {
+        console.log(food.moodTags);
+    });
 
     res.status(200).json(
         new ApiResponse(200, "Food items fetched successfully", {
